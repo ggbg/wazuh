@@ -634,9 +634,13 @@ int OS_SetSendTimeout(int socket, int seconds)
  * Return 0 on success or OS_SOCKTERR on error.
  */
 int OS_SendSecureTCP(int sock, uint32_t size, const void * msg) {
-    int retval;
-    void * buffer;
+    int retval = OS_SOCKTERR;
+    void* buffer = NULL;
     size_t bufsz = size + sizeof(uint32_t);
+
+    if (sock < 0) {
+        return retval;
+    }
 
     os_malloc(bufsz, buffer);
     *(uint32_t *)buffer = wnet_order(size);
@@ -717,7 +721,7 @@ int OS_SetSocketSize(int sock, int mode, int max_msg_size) {
 
         /* Get current maximum size */
         if (getsockopt(sock, SOL_SOCKET, SO_RCVBUF, (void *)&len, &optlen) == -1) {
-            return -1;
+            len = 0;
         }
 
         /* Set maximum message size */
@@ -732,7 +736,7 @@ int OS_SetSocketSize(int sock, int mode, int max_msg_size) {
 
         /* Get current maximum size */
         if (getsockopt(sock, SOL_SOCKET, SO_SNDBUF, (void *)&len, &optlen) == -1) {
-            return -1;
+            len = 0;
         }
 
         /* Set maximum message size */

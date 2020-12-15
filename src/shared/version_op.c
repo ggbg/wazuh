@@ -361,8 +361,8 @@ char *get_release_from_build(char *os_build) {
 
 #else
 
-char *OSX_ReleaseName(const int version) {
-    char *r_names[] = {
+const char *OSX_ReleaseName(int version) {
+    const char *R_NAMES[] = {
     /* 10 */ "Snow Leopard",
     /* 11 */ "Lion",
     /* 12 */ "Mountain Lion",
@@ -372,11 +372,17 @@ char *OSX_ReleaseName(const int version) {
     /* 16 */ "Sierra",
     /* 17 */ "High Sierra",
     /* 18 */ "Mojave",
-    /* 19 */ "Catalina"};
-    if (version >= 10 && version <= 19)
-        return r_names[version%10];
-    else
+    /* 19 */ "Catalina",
+    /* 20 */ "Big Sur",
+    };
+
+    version -= 10;
+
+    if (version >= 0 && (unsigned)version < sizeof(R_NAMES) / sizeof(char *)) {
+        return R_NAMES[version];
+    } else {
         return "Unknown";
+    }
 }
 
 
@@ -447,7 +453,7 @@ os_info *get_unix_version()
                 while (fgets(buff, sizeof(buff) - 1, version_release)) {
                     if(regexec(&regexCompiled, buff, 2, match, 0) == 0){
                         match_size = match[1].rm_eo - match[1].rm_so;
-                        info->os_version = malloc(match_size +1);
+                        os_malloc(match_size + 1, info->os_version);
                         snprintf (info->os_version, match_size +1, "%.*s", match_size, buff + match[1].rm_so);
                         break;
                     }
@@ -476,7 +482,7 @@ os_info *get_unix_version()
             while (fgets(buff, sizeof(buff) - 1, version_release)) {
                 if(regexec(&regexCompiled, buff, 2, match, 0) == 0){
                     match_size = match[1].rm_eo - match[1].rm_so;
-                    info->os_version = malloc(match_size +1);
+                    os_malloc(match_size + 1, info->os_version);
                     snprintf (info->os_version, match_size +1, "%.*s", match_size, buff + match[1].rm_so);
                     break;
                 }
@@ -494,7 +500,7 @@ os_info *get_unix_version()
             while (fgets(buff, sizeof(buff) - 1, version_release)) {
                 if(regexec(&regexCompiled, buff, 2, match, 0) == 0){
                     match_size = match[1].rm_eo - match[1].rm_so;
-                    info->os_version = malloc(match_size +1);
+                    os_malloc(match_size + 1, info->os_version);
                     snprintf(info->os_version, match_size +1, "%.*s", match_size, buff + match[1].rm_so);
                     break;
                 }
@@ -525,7 +531,7 @@ os_info *get_unix_version()
 
                 if(regexec(&regexCompiled, buff, 2, match, 0) == 0){
                     match_size = match[1].rm_eo - match[1].rm_so;
-                    info->os_version = malloc(match_size +1);
+                    os_malloc(match_size + 1, info->os_version);
                     snprintf (info->os_version, match_size +1, "%.*s", match_size, buff + match[1].rm_so);
                     break;
                 }
@@ -556,7 +562,7 @@ os_info *get_unix_version()
             while (fgets(buff, sizeof(buff) - 1, version_release)) {
                 if(regexec(&regexCompiled, buff, 2, match, 0) == 0){
                     match_size = match[1].rm_eo - match[1].rm_so;
-                    info->os_version = malloc(match_size +1);
+                    os_malloc(match_size + 1, info->os_version);
                     snprintf (info->os_version, match_size +1, "%.*s", match_size, buff + match[1].rm_so);
                     break;
                 }
@@ -574,7 +580,7 @@ os_info *get_unix_version()
             while (fgets(buff, sizeof(buff) - 1, version_release)) {
                 if(regexec(&regexCompiled, buff, 2, match, 0) == 0){
                     match_size = match[1].rm_eo - match[1].rm_so;
-                    info->os_version = malloc(match_size +1);
+                    os_malloc(match_size + 1, info->os_version);
                     snprintf (info->os_version, match_size +1, "%.*s", match_size, buff + match[1].rm_so);
                     break;
                 }
@@ -592,7 +598,7 @@ os_info *get_unix_version()
             while (fgets(buff, sizeof(buff) - 1, version_release)) {
                 if(regexec(&regexCompiled, buff, 2, match, 0) == 0){
                     match_size = match[1].rm_eo - match[1].rm_so;
-                    info->os_version = malloc(match_size +1);
+                    os_malloc(match_size + 1, info->os_version);
                     snprintf (info->os_version, match_size +1, "%.*s", match_size, buff + match[1].rm_so);
                     break;
                 }
@@ -610,7 +616,7 @@ os_info *get_unix_version()
             while (fgets(buff, sizeof(buff) - 1, version_release)) {
                 if(regexec(&regexCompiled, buff, 2, match, 0) == 0){
                     match_size = match[1].rm_eo - match[1].rm_so;
-                    info->os_version = malloc(match_size +1);
+                    os_malloc(match_size + 1, info->os_version);
                     snprintf (info->os_version, match_size +1, "%.*s", match_size, buff + match[1].rm_so);
                     break;
                 }
@@ -628,7 +634,7 @@ os_info *get_unix_version()
             while (fgets(buff, sizeof(buff) - 1, version_release)) {
                 if(regexec(&regexCompiled, buff, 2, match, 0) == 0){
                     match_size = match[1].rm_eo - match[1].rm_so;
-                    info->os_version = malloc(match_size +1);
+                    os_malloc(match_size + 1, info->os_version);
                     snprintf (info->os_version, match_size +1, "%.*s", match_size, buff + match[1].rm_so);
                     break;
                 }
@@ -693,7 +699,7 @@ os_info *get_unix_version()
                         if(build){
                             strtok_r(buff, ">", &save_ptr);
                             id=strtok_r(NULL, "<", &save_ptr);
-                            w_strdup(id, info->os_build); 
+                            w_strdup(id, info->os_build);
                             if(info->os_build == NULL){
                                 mdebug1("Cannot read OS build from file %s.", MAC_SERVERVERSION);
                             }
@@ -731,7 +737,7 @@ os_info *get_unix_version()
                     fclose(os_release);
                 }
                 //cmd
-                else{ 
+                else{
                     if (cmd_output_ver = popen("sw_vers -productName", "r"), cmd_output_ver) {
                         if(fgets(buff, sizeof(buff) - 1, cmd_output_ver) == NULL){
                             mdebug1("Cannot read from command output (sw_vers -productName).");
@@ -763,7 +769,7 @@ os_info *get_unix_version()
                     } else if (w_regexec("([0-9][0-9]*\\.?[0-9]*)\\.*", buff, 2, match)){
                         match_size = match[1].rm_eo - match[1].rm_so;
                         char *kern = NULL;
-                        kern = malloc(match_size +1);
+                        os_malloc(match_size + 1, kern);
                         snprintf(kern, match_size +1, "%.*s", match_size, buff + match[1].rm_so);
                         w_strdup(OSX_ReleaseName(atoi(kern)), info->os_codename);
                         free(kern);
@@ -809,7 +815,7 @@ os_info *get_unix_version()
                         mdebug1("Cannot read from command output (uname -r).");
                     } else if (w_regexec("B\\.([0-9][0-9]*\\.[0-9]*)", buff, 2, match)){
                         match_size = match[1].rm_eo - match[1].rm_so;
-                        info->os_version = malloc(match_size +1);
+                        os_malloc(match_size + 1, info->os_version);
                         snprintf (info->os_version, match_size +1, "%.*s", match_size, buff + match[1].rm_so);
                     }
                     pclose(cmd_output_ver);
@@ -824,7 +830,7 @@ os_info *get_unix_version()
                         mdebug1("Cannot read from command output (uname -r).");
                     } else if (w_regexec("([0-9][0-9]*\\.?[0-9]*)\\.*", buff, 2, match)){
                         match_size = match[1].rm_eo - match[1].rm_so;
-                        info->os_version = malloc(match_size +1);
+                        os_malloc(match_size + 1, info->os_version);
                         snprintf (info->os_version, match_size +1, "%.*s", match_size, buff + match[1].rm_so);
                     }
                     pclose(cmd_output_ver);
@@ -860,13 +866,13 @@ os_info *get_unix_version()
         // Get os_major
         if (w_regexec("^([0-9]+)\\.*", info->os_version, 2, match)) {
             match_size = match[1].rm_eo - match[1].rm_so;
-            info->os_major = malloc(match_size +1);
+            os_malloc(match_size + 1, info->os_major);
             snprintf(info->os_major, match_size + 1, "%.*s", match_size, info->os_version + match[1].rm_so);
         }
         // Get os_minor
         if (w_regexec("^[0-9]+\\.([0-9]+)\\.*", info->os_version, 2, match)) {
             match_size = match[1].rm_eo - match[1].rm_so;
-            info->os_minor = malloc(match_size +1);
+            os_malloc(match_size + 1, info->os_minor);
             snprintf(info->os_minor, match_size + 1, "%.*s", match_size, info->os_version + match[1].rm_so);
         }
         // Get os_patch
